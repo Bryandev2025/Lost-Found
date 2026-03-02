@@ -46,27 +46,27 @@ class User extends Authenticatable
     // Relationships
     public function reportedItems()
     {
-        return $this->hasMany(Item::class , 'reported_by');
+        return $this->hasMany(Item::class, 'reported_by');
     }
 
     public function foundItems()
     {
-        return $this->hasMany(Item::class , 'found_by');
+        return $this->hasMany(Item::class, 'found_by');
     }
 
     public function claims()
     {
-        return $this->hasMany(Claim::class , 'claimer_id');
+        return $this->hasMany(Claim::class, 'claimer_id');
     }
 
     public function reviewedClaims()
     {
-        return $this->hasMany(Claim::class , 'reviewed_by');
+        return $this->hasMany(Claim::class, 'reviewed_by');
     }
 
     public function matches()
     {
-        return $this->hasMany(MatchModel::class , 'matched_by');
+        return $this->hasMany(MatchModel::class, 'matched_by');
     }
 
     public function notificationLogs()
@@ -76,6 +76,11 @@ class User extends Authenticatable
 
     public function activityLogs()
     {
-        return $this->hasMany(ActivityLog::class , 'actor_id');
+        return $this->hasMany(ActivityLog::class, 'actor_id');
+    }
+
+    public function profile()
+    {
+        return $this->hasOne(Profile::class);
     }
 }

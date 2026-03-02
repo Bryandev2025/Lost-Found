@@ -29,7 +29,7 @@ use App\Http\Controllers\API\Auth\LoginController;
 use App\Http\Controllers\API\Auth\RegisterController;
 use App\Http\Controllers\API\Auth\LogoutController;
 use App\Http\Controllers\API\Auth\MeController;
-
+use App\Http\Controllers\ProfileController;
 
 //API/Controllers
 use App\Http\Controllers\API\ItemsController;
@@ -53,7 +53,6 @@ Route::prefix('auth')->group(function () {
         function () {
 
             Route::get('/me', MeController::class);
-
             Route::post('/logout', LogoutController::class);
 
         }
@@ -66,6 +65,11 @@ Route::prefix('auth')->group(function () {
 
 //API/Items Routes
 Route::middleware('auth:sanctum')->group(function () {
+
+    // Profile Routes
+    Route::get('/profile', [ProfileController::class, 'show']);
+    Route::post('/profile', [ProfileController::class, 'update']);
+
     /**
      * ITEMS (Lost/Found reports)
      * user/staff/admin can create reports and view lists

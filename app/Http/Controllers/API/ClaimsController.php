@@ -232,7 +232,7 @@ class ClaimsController extends Controller
             $claim->item()->update(['status' => 'claimed']);
 
             // Deny all other pending or approved claims for this item
-            \App\Models\Claim::where('item_id', $claim->item_id)
+            Claim::where('item_id', $claim->item_id)
                 ->where('id', '!=', $claim->id)
                 ->whereIn('status', ['pending', 'approved'])
                 ->update([

@@ -64,6 +64,10 @@ class ClaimsController extends Controller
             return response()->json(['message' => 'Item is archived and cannot be claimed.'], 422);
         }
 
+        if ($item->reported_by === $user->id) {
+            return response()->json(['message' => 'You cannot claim an item you reported.'], 422);
+        }
+
         // prevent duplicate pending claims by same user for same item
         $exists = Claim::where('item_id', $item->id)
             ->where('claimer_id', $user->id)
@@ -226,6 +230,17 @@ class ClaimsController extends Controller
 
             // Mark item as claimed
             $claim->item()->update(['status' => 'claimed']);
+
+            // Deny all other pending or approved claims for this item
+            \App\Models\Claim::where('item_id', $claim->item_id)
+                ->where('id', '!=', $claim->id)
+                ->whereIn('status', ['pending', 'approved'])
+                ->update([
+                    'status' => 'denied',
+                    'reviewed_by' => $request->user()->id,
+                    'reviewed_at' => now(),
+                    'review_notes' => 'Auto-denied: Item was released to another claimant.',
+                ]);
 
             ActivityLogger::log(
                 $request->user()->id,

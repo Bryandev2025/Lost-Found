@@ -38,6 +38,14 @@ class MatchesController extends Controller
             return response()->json(['message' => 'found_item_id must be a FOUND item.'], 422);
         }
 
+        if ($lost->status !== 'pending' && $lost->status !== 'archived') {
+            return response()->json(['message' => "Lost item is already {$lost->status}."], 422);
+        }
+
+        if ($found->status !== 'pending' && $found->status !== 'archived') {
+            return response()->json(['message' => "Found item is already {$found->status}."], 422);
+        }
+
         $match = DB::transaction(function () use ($lost, $found, $data, $request) {
             $match = MatchModel::create([
                 'lost_item_id' => $lost->id,

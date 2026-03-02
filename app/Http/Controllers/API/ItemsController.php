@@ -127,7 +127,25 @@ class ItemsController extends Controller
     {
         $this->authorize('delete', $item);
 
-        $item->delete();
+        // Delete associated claim images before removing claims
+        foreach ($item->claims as $claim) {
+            if ($claim->proof_image_path && \Illuminate\Support\Facades\Storage::disk('local')->exists($claim->proof_image_path)) {
+                \Illuminate\Support\Facades\Storage::disk('local')->delete($claim->proof_image_path);
+            }
+        }
+
+        // Delete item image
+        if ($item->image_path && \Illuminate\Support\Facades\Storage::disk('public')->exists($item->image_path)) {
+            \Illuminate\Support\Facades\Storage::disk('public')->delete($item->image_path);
+        }
+
+        // Delete associated claims and matches completely from the database
+        $item->claims()->forceDelete();
+        $item->lostMatches()->delete(); // MatchModel doesn't use SoftDeletes, so delete() is a hard delete
+        $item->foundMatches()->delete();
+
+        // Completely remove the item from the database, fixing the issue of it remaining
+        $item->forceDelete();
 
         ActivityLogger::log(
             $request->user()->id,
